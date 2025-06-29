@@ -1,0 +1,60 @@
+# === General OS/Editor ===
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+
+# === IntelliJ IDEA ===
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# === VS Code ===
+.vscode/
+
+# === Eclipse / Spring Tool Suite (STS) ===
+.apt_generated/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+
+# === Maven / Java ===
+**/target/
+**/.mvn/
+**/build/
+HELP.md
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+
+# Keep build folders inside source dirs (if any)
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# === Node / Web Extension ===
+**/node_modules/
+**/dist/
+**/build/
+
+# === Environment / Secrets ===
+*.env
+.env.*
+.envrc
+
+# === Logs ===
+*.log
+
+# === macOS Finder ===
+.AppleDouble
+.LSOverride
+
+# === Others ===
+*.bak
+*.tmp
+*.old
