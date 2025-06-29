@@ -1,67 +1,44 @@
 console.log("Email Writer Extension - Content Script loaded");
+let inputText = "";
 
 function createToneSelect() {
-  const select = document.createElement('select');
-  select.className = 'ai-tone-selector';
-  select.style.padding = '4px';
-  select.style.border = '1px solid #ccc';
-  select.style.borderRadius = '4px';
-  select.style.marginRight = '6px';
-
-  const tones = [
-    { value: '',              label: 'Select tone…' },
-    { value: 'Professional',  label: 'Professional' },
-    { value: 'Casual',        label: 'Casual' },
-    { value: 'Friendly',      label: 'Friendly' },
-  ];
-
-  for (const { value, label } of tones) {
-    const opt = document.createElement('option');
-    opt.value = value;
-    opt.textContent = label;
-    select.appendChild(opt);
-  }
-  return select;
+    const select = document.createElement('select');
+    select.className = 'ai-tone-selector';
+    select.style.padding = '2px 4px';
+    select.style.border = '1px solid #ccc';
+    select.style.borderRadius = '4px';
+    select.style.fontSize = '12px';
+    return select;
 }
 
-function createAIButton(){
-    const button=document.createElement('div');
-    button.className='T-I J-J5-Ji aoO v7 T-I-atl L3';
-    button.style.marginRight='8px';
-    button.innerHTML='AI Reply';
-    button.setAttribute('role','button');
-    button.setAttribute('data-tooltip','Generate AI Reply');
+function createAIButton() {
+    const button = document.createElement('button');
+    button.textContent = 'Generate';
+    button.style.padding = '2px 8px';
+    button.style.border = '1px solid #aaa';
+    button.style.borderRadius = '4px';
+    button.style.backgroundColor = '#f1f3f4';
+    button.style.fontSize = '12px';
+    button.style.cursor = 'pointer';
     return button;
 }
 
-function findComposeToolbar(){
-    const selectors=[
-        '.btC',
-        '.aDh',
-        '[role="toolbar"]',
-        '.gU.Up'
-    ];
+function findComposeToolbar() {
+    const selectors = ['.btC', '.aDh', '[role="toolbar"]', '.gU.Up'];
     for (const selector of selectors) {
-        const toolbar=document.querySelector(selector);
-        if(toolbar)  return toolbar;
+        const toolbar = document.querySelector(selector);
+        if (toolbar) return toolbar;
     }
     return null;
-
 }
 
-function getEmailContent(){
-    const selectors=[
-        '.h7',
-        '.a3s.aiL',
-        '.gmail_quote',
-        '[role="presentation"]'
-    ];
+function getEmailContent() {
+    const selectors = ['.h7', '.a3s.aiL', '.gmail_quote', '[role="presentation"]'];
     for (const selector of selectors) {
-        const content=document.querySelector(selector);
-        if(content)  return content.innerText.trim();
+        const content = document.querySelector(selector);
+        if (content) return content.innerText.trim();
     }
     return '';
-
 }
 
 function injectionButton() {
@@ -79,53 +56,81 @@ function injectionButton() {
     container.className = 'ai-reply-container';
     container.style.display = 'flex';
     container.style.alignItems = 'center';
+    container.style.gap = '6px';
+    container.style.marginTop = '6px';
+    container.style.flexWrap = 'wrap';
 
-    const button = document.createElement('div');
-    button.className = 'T-I J-J5-Ji aoO v7 T-I-atl L3';
-    button.textContent = 'AI Reply';
-    button.setAttribute('role', 'button');
-    button.setAttribute('data-tooltip', 'Generate AI Reply');
-    button.style.marginRight = '4px';
+    const button = createAIButton();
 
-    const select = document.createElement('select');
-    select.style.height = '28px';
-    select.style.border = '1px solid #dadce0';
-    select.style.borderRadius = '4px';
-    select.style.background = '#fff';
-    select.style.fontSize = '12px';
-    select.style.cursor = 'pointer';
-    select.style.padding = '0 4px';
-
-    const tones = [
-        { value: 'Professional', label: 'Professional' },
-        { value: 'Casual', label: 'Casual' },
-        { value: 'Friendly', label: 'Friendly' }
-    ];
-    for (const { value, label } of tones) {
+    const select = createToneSelect();
+    const tones = ['Professional', 'Casual', 'Friendly'];
+    tones.forEach(tone => {
         const opt = document.createElement('option');
-        opt.value = value;
-        opt.textContent = label;
+        opt.value = tone;
+        opt.textContent = tone;
         select.appendChild(opt);
-    }
+    });
     select.value = 'Professional';
 
+    const toggleLabel = document.createElement('label');
+    toggleLabel.style.display = 'flex';
+    toggleLabel.style.alignItems = 'center';
+    toggleLabel.style.gap = '4px';
+    toggleLabel.style.fontSize = '12px';
+    toggleLabel.style.cursor = 'pointer';
+
+    const toggleInput = document.createElement('input');
+    toggleInput.type = 'checkbox';
+    toggleInput.checked = true;
+
+    const toggleText = document.createElement('span');
+    toggleText.textContent = 'Auto Generate';
+
+    toggleLabel.appendChild(toggleInput);
+    toggleLabel.appendChild(toggleText);
+
+    const manualInput = document.createElement('textarea');
+    manualInput.placeholder = 'Describe the reply...';
+    manualInput.style.display = 'none';
+    manualInput.style.width = '100%';
+    manualInput.style.minHeight = '40px';
+    manualInput.style.fontSize = '12px';
+    manualInput.style.padding = '4px';
+    manualInput.style.border = '1px solid #ccc';
+    manualInput.style.borderRadius = '4px';
+    manualInput.style.marginTop = '4px';
+
+    toggleInput.addEventListener('change', () => {
+        if (toggleInput.checked) {
+            manualInput.style.display = 'none';
+            inputText = "";
+        } else {
+            manualInput.style.display = 'block';
+            inputText = manualInput.value;
+        }
+        // manualInput.style.display = toggleInput.checked ? 'none' : 'block';
+
+    });
+    manualInput.addEventListener('input', (e) => {
+        inputText = e.target.value.trim();
+    })
+
     button.addEventListener('click', async () => {
+        console.log(inputText);
         try {
             button.textContent = "Generating...";
-            button.style.pointerEvents = "none";
+            button.disabled = true;
 
-            const emailContent = getEmailContent();
             const tone = select.value;
+            const emailContent = toggleInput.checked
+                ? getEmailContent()
+                : manualInput.value.trim();
+
 
             const response = await fetch('http://localhost:8080/api/email/generate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    emailContent: emailContent,
-                    tone: tone
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ emailContent, tone, inputText })
             });
 
             if (!response.ok) throw new Error('API Request Failed');
@@ -142,34 +147,36 @@ function injectionButton() {
             console.error(error);
             alert("FAILED TO GENERATE THE REPLY");
         } finally {
-            button.textContent = 'AI Reply';
-            button.style.pointerEvents = "auto";
+            button.textContent = 'Generate';
+            button.disabled = false;
         }
     });
 
     container.appendChild(button);
     container.appendChild(select);
+    container.appendChild(toggleLabel);
+    container.appendChild(manualInput);
     toolbar.insertBefore(container, toolbar.firstChild);
 }
 
-
-
-
-const observer= new MutationObserver((mutations)=>{
-    for(const mutation of mutations){
-        const addedNodes=Array.from(mutation.addedNodes);
-        const hasComposeElements =addedNodes.some(node =>
+const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+        const addedNodes = Array.from(mutation.addedNodes);
+        const hasComposeElements = addedNodes.some(node =>
             node.nodeType === Node.ELEMENT_NODE &&
-            (node.matches('.aDh, .btC, [role="dialog"], div[aria-label="Message Body"]')||node.querySelector('.aDh, .btC, [role="dialog"], div[aria-label="Message Body"]'))
+            (
+                node.matches('.aDh, .btC, [role="dialog"], div[aria-label="Message Body"]') ||
+                node.querySelector('.aDh, .btC, [role="dialog"], div[aria-label="Message Body"]')
+            )
         );
-        if(hasComposeElements){
+        if (hasComposeElements) {
             console.log("Compose Window Detected");
-            setTimeout(injectionButton,500);
+            setTimeout(injectionButton, 500);
         }
     }
 });
 
-observer.observe(document.body,{
-    childList:true,
-    subtree:true
-})
+observer.observe(document.body, {
+    childList: true,
+    subtree: true
+});
