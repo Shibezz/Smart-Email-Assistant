@@ -26,12 +26,12 @@ Backend	Java 17+, Spring Boot
 AI Service	Google Gemini API
 Browser	Firefox (Manifest V3)
 🚀 Getting Started
-1. Clone the Repository
+### 1. Clone the Repository
 
 git clone https://github.com/Shibezz/we_chat.git
 cd we_chat
 
-2. Start the Backend Server
+### 2. Start the Backend Server
 
 Ensure Java 17+ and Maven are installed. Then:
 
@@ -39,7 +39,7 @@ cd email-response
 ./mvnw spring-boot:run
 
 The server runs by default on http://localhost:8080.
-3. Configure Gemini API Access
+### 3. Configure Gemini API Access
 
 Add your Gemini API key in application.properties:
 
@@ -49,7 +49,7 @@ Alternatively, export it as an environment variable:
 
 export GEMINI_API_KEY=your_key
 
-4. Load the Firefox Extension
+### 4. Load the Firefox Extension
 
     Open Firefox and navigate to about:debugging.
 
